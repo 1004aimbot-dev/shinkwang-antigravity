@@ -1,4 +1,8 @@
 /* Global Utilities specific to Home */
+
+@import '../components/ui/ModalContent.css';
+@import './Admin.css';
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -42,9 +46,6 @@
     background-color: var(--color-bg-main);
     /* Using the warm ivory var */
 }
-
-@import '../components/ui/ModalContent.css';
-@import './Admin.css';
 
 /* Hero Section */
 .hero-section {
