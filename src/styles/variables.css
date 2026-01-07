@@ -1,0 +1,49 @@
+:root {
+  /* Colors - Church Tone (Ivory / Deep Blue / Gold) */
+  --color-bg-main: #F9F9F7;
+  /* Warm Ivory for background */
+  --color-bg-white: #FFFFFF;
+  /* Pure white for cards */
+
+  --color-primary: #1A2530;
+  /* Deep Charcoal/Blue for text */
+  --color-secondary: #34495E;
+  /* Softer dark for secondary text */
+
+  --color-accent: #C5A059;
+  /* Gold for points */
+  --color-accent-light: #E5C585;
+  /* Light Gold */
+
+  --color-text-main: #1A2530;
+  --color-text-muted: #606060;
+  --color-text-light: #F9F9F7;
+
+  /* Typography */
+  --font-main: 'Noto Sans KR', sans-serif;
+  /* Clean Sans-serif for body */
+  --font-display: 'Noto Serif KR', serif;
+  /* Myeongjo for headings (Plan says 'Myeongjo or Stylish Sans') - Let's use Serif for Holy feel or keep Sans if preferred. Guide says "Dan-jeong-han Myeong-jo". Let's try Noto Serif KR if available, or fallback to serif */
+
+  /* Spacing - Generous for "Holy" feel */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 5rem;
+  /* Increased for breathing room */
+  --spacing-xl: 10rem;
+
+  /* Border Radius - Rounded and Calm */
+  --radius-sm: 4px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows - Subtle */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.04);
+  /* Text Shadow for Readability on Images */
+  --shadow-text: 0 2px 4px rgba(0, 0, 0, 0.5);
+  /* Stronger Overlay for Hero */
+  --overlay-strong: rgba(0, 15, 30, 0.65);
+}

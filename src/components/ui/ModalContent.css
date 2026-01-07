@@ -1,0 +1,106 @@
+/* Modal Specific Styles */
+.modal-body-content {
+    color: var(--color-primary);
+    line-height: 1.6;
+}
+
+.coming-soon-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.coming-soon-list li {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.coming-soon-list li:last-child {
+    border-bottom: none;
+}
+
+.coming-soon-list .date {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-family: monospace;
+}
+
+.coming-soon-list .content {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.modal-note {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    background: var(--color-bg-light);
+    padding: 0.8rem;
+    border-radius: 4px;
+}
+
+.modal-divider {
+    border: 0;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 1.5rem 0;
+}
+
+.contact-info ul {
+    padding-left: 1.2rem;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.contact-info li {
+    margin-bottom: 0.3rem;
+}
+
+.text-start {
+    text-align: left;
+}
+
+/* Action Buttons in Modal */
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.btn-action-primary,
+.btn-action-secondary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.btn-action-primary {
+    background-color: var(--color-primary);
+    color: white;
+    border: 1px solid transparent;
+}
+
+.btn-action-primary:hover {
+    background-color: #000;
+    transform: translateY(-2px);
+}
+
+.btn-action-secondary {
+    background-color: white;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+.btn-action-secondary:hover {
+    background-color: var(--color-bg-light);
+}

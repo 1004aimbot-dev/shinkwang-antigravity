@@ -1,0 +1,197 @@
+/* People.css */
+.people-page {
+    background-color: var(--color-bg-main);
+    padding-bottom: 5rem;
+    min-height: 100vh;
+}
+
+.people-header {
+    background-color: var(--color-primary);
+    /* Navy */
+    color: white;
+    padding: 80px 0 20px;
+    /* Further reduced */
+    /* Header spacing */
+    text-align: center;
+    margin-bottom: 1rem;
+    /* Further reduced */
+}
+
+.people-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-accent);
+}
+
+.people-subtitle {
+    opacity: 0.8;
+    font-size: 1.1rem;
+}
+
+.people-content {
+    max-width: 1000px;
+}
+
+.people-section {
+    margin-bottom: 1.5rem;
+    /* Further reduced */
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    /* Further reduced */
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-accent);
+    /* Gold underline */
+    padding-bottom: 5px;
+    /* Further reduced */
+    display: inline-flex;
+    /* Shrink to fit */
+    padding-right: 20px;
+}
+
+.section-icon {
+    color: var(--color-accent);
+}
+
+.people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.person-card {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.person-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-accent);
+}
+
+.person-card.musician {
+    background-color: #fdfbf7;
+    /* Slight ivory tint for musicians */
+    border-color: var(--color-accent-light);
+}
+
+.person-role {
+    font-size: 0.9rem;
+    color: var(--color-accent-dark);
+    /* Darker gold/brown */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.person-info {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.person-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    font-family: var(--font-display);
+}
+
+.person-title {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+}
+
+.person-phone {
+    display: inline-block;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: 6px 10px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    align-self: flex-start;
+    transition: background 0.2s;
+}
+
+.person-phone:hover {
+    background: #e0e0e0;
+    color: var(--color-primary);
+}
+
+.divider-wide {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.05);
+    margin: 1.5rem 0;
+    /* Further reduced */
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .people-header {
+        padding: 100px 0 40px;
+    }
+
+    .people-title {
+        font-size: 2rem;
+    }
+
+    .people-grid {
+        grid-template-columns: 1fr;
+        /* Stack on mobile */
+    }
+
+    .person-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .person-info {
+        margin-bottom: 0;
+    }
+
+    .person-phone {
+        font-size: 0.8rem;
+    }
+}
+
+/* Compact Grid for Full List */
+.people-grid.compact {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.8rem;
+}
+
+.person-card.compact {
+    padding: 1rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.person-name.small {
+    font-size: 1.1rem;
+}
+
+.person-title.small {
+    font-size: 0.9rem;
+}
+
+.person-phone.small {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}

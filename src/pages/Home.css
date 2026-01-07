@@ -1,0 +1,561 @@
+/* Global Utilities specific to Home */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-serif {
+    font-family: var(--font-display);
+}
+
+.keep-all {
+    word-break: keep-all;
+}
+
+/* Section Commons */
+.section {
+    padding: var(--spacing-lg) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.section-title {
+    font-size: 2rem;
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.divider-gold {
+    width: 40px;
+    height: 2px;
+    background-color: var(--color-accent);
+    margin: 0 auto 3rem;
+}
+
+.bg-ivory {
+    background-color: var(--color-bg-main);
+    /* Using the warm ivory var */
+}
+
+@import '../components/ui/ModalContent.css';
+@import './Admin.css';
+
+/* Hero Section */
+.hero-section {
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-image: url('https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=2073&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    margin-top: -80px;
+    /* Header overlap */
+    padding-top: 80px;
+    color: white;
+}
+
+.hero-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    bottom: 0;
+    background: var(--overlay-strong);
+    /* slightly darker overlay */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    padding: 0 1rem;
+    padding-top: 80px;
+    /* Push content down on desktop */
+    margin: 0 auto;
+    /* Ensure centering */
+}
+
+.hero-pretitle {
+    display: block;
+    font-size: 1.2rem;
+    /* increased from 1rem */
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+}
+
+.hero-title {
+    font-size: 4.5rem;
+    /* increased from 4.2rem */
+    margin-bottom: 3rem;
+    color: #FFFFFF;
+    line-height: 1.1;
+    text-shadow: var(--shadow-text);
+    letter-spacing: 0.2em;
+    /* 120% wide spacing feel */
+}
+
+.hero-subtitle {
+    font-size: 1.7rem;
+    /* increased from 1.5rem */
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    text-shadow: var(--shadow-text);
+}
+
+.hero-description {
+    font-size: 1.3rem;
+    /* increased from 1.1rem */
+    opacity: 1;
+    line-height: 1.8;
+    font-weight: 400;
+    text-shadow: var(--shadow-text);
+}
+
+.hero-scroll-indicator {
+    margin-top: 4rem;
+    animation: bounce 2s infinite;
+    opacity: 0.8;
+}
+
+/* Intro Section */
+.intro-section {
+    background-color: white;
+}
+
+.section-tag {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.intro-text {
+    font-size: 1.6rem;
+    line-height: 1.6;
+    color: var(--color-primary);
+    margin-bottom: 1.5rem;
+}
+
+.intro-text strong {
+    color: var(--color-secondary);
+}
+
+.intro-subtext {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+}
+
+/* Mission Section */
+.mission-main-text {
+    font-size: 1.4rem;
+    margin-bottom: 4rem;
+    line-height: 1.8;
+    color: var(--color-primary);
+}
+
+.mission-values {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+}
+
+.value-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-accent);
+}
+
+.value-item p {
+    color: var(--color-primary);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.mission-footer-text {
+    font-size: 1.1rem;
+    font-style: italic;
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Vision Section */
+.vision-section {
+    background-color: white;
+}
+
+.vision-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.vision-card {
+    background: white;
+    padding: 2.5rem 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    /* Stronger border */
+    border-radius: var(--radius-sm);
+    width: 260px;
+    transition: transform 0.3s;
+    box-shadow: var(--shadow-sm);
+}
+
+.vision-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+}
+
+.vision-card h3 {
+    font-size: 2.5rem;
+    color: var(--color-accent-light);
+    margin-bottom: 1rem;
+    font-family: var(--font-display);
+}
+
+.vision-card p {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: 1.1rem;
+}
+
+.vision-summary {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+}
+
+/* News & Worship Grid */
+.grid-2-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.content-block {
+    padding: 2.5rem;
+    border-left: 4px solid var(--color-accent);
+    background: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.icon-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary);
+}
+
+.block-title {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.block-desc {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--color-text-main);
+    font-weight: 600;
+}
+
+.block-subdesc {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.btn-text {
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+/* Member Section */
+.member-section {
+    background-color: white;
+}
+
+.member-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.member-card {
+    padding: 3rem 2rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.member-card.guide {
+    background-color: var(--color-bg-light);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    /* Stronger border */
+}
+
+.member-card.new {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.member-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-family: var(--font-display);
+}
+
+.member-card.new h3 {
+    color: white;
+}
+
+.member-card p {
+    opacity: 0.9;
+    line-height: 1.7;
+}
+
+.member-card.guide .member-text {
+    color: var(--color-text-muted);
+}
+
+.member-card.new .member-text {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.card-icon-main {
+    margin-bottom: 1.5rem;
+    opacity: 1;
+}
+
+.member-card.guide .card-icon-main {
+    color: var(--color-accent);
+}
+
+.member-card.new .card-icon-main {
+    color: var(--color-accent-light);
+}
+
+
+.action-area {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+}
+
+.action-area p {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-gold {
+    display: inline-block;
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-gold:hover {
+    background-color: var(--color-accent-light);
+    transform: translateY(-2px);
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+
+/* =========================================
+   Mobile Responsiveness (Smartphone Optimized)
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* Section Spacing */
+    .section {
+        padding: 3rem 0;
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .divider-gold {
+        margin-bottom: 2rem;
+    }
+
+    /* Hero Section Mobile */
+    .hero-section {
+        height: 100vh;
+        height: 100dvh;
+        background-attachment: scroll;
+        /* Fix for some mobile browsers */
+    }
+
+    .hero-content {
+        width: 100%;
+        padding: 0 1.5rem;
+        padding-top: 22vh;
+        /* Increased from 15vh to move text down */
+        /* Push text down significantly */
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-top: 0.5rem;
+        margin-bottom: 4rem;
+        /* Additional spacing */
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-description {
+        font-size: 0.95rem;
+        margin-top: 1.5rem;
+        padding: 0 1rem;
+    }
+
+    /* Intro & Mission Mobile */
+    .intro-text,
+    .mission-main-text {
+        font-size: 1.2rem;
+        padding: 0 1rem;
+        word-break: keep-all;
+    }
+
+    .intro-subtext,
+    .mission-footer-text {
+        font-size: 0.95rem;
+        padding: 0 1rem;
+    }
+
+    .mission-values {
+        gap: 2.5rem;
+        flex-direction: column;
+        margin-bottom: 3rem;
+    }
+
+    .value-item {
+        flex-direction: row;
+        gap: 1.5rem;
+        justify-content: center;
+    }
+
+    /* Vision Grid Mobile */
+    .vision-grid {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .vision-card {
+        width: 100%;
+        max-width: 320px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
+        /* Card content left aligned internally */
+    }
+
+    .vision-card h3 {
+        margin-bottom: 0;
+        font-size: 2rem;
+        margin-right: 1.5rem;
+    }
+
+    /* News & Member Grid Mobile */
+    .grid-2-cols,
+    .member-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 0 1rem;
+    }
+
+    .content-block {
+        padding: 2rem 1.5rem;
+    }
+
+    .member-card {
+        padding: 2.5rem 1.5rem;
+    }
+}
+
+.hero-calligraphy-img {
+    max-width: 70%;
+    height: auto;
+    margin: 1rem auto 2rem;
+    display: block;
+    /* mix-blend-mode removed */
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    opacity: 0.95;
+    animation: fadeIn 2s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .hero-calligraphy-img {
+        max-width: 85%;
+        margin: 0.5rem auto 2.5rem;
+    }
+}
