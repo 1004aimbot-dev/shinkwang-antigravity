@@ -265,14 +265,12 @@ const Home = () => {
                                 다음 세대에게는 믿음의 발자취로 남기를 소망합니다.
                             </p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <a
-                                    href={praiseLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <Link
+                                    to="/praise"
                                     className="btn-text"
                                 >
                                     찬양 다시보기 &rarr;
-                                </a>
+                                </Link>
                                 {isAdmin && (
                                     <button onClick={openEditPraiseLink} className="btn-admin-edit" title="링크 수정">
                                         <Edit size={14} /> 수정

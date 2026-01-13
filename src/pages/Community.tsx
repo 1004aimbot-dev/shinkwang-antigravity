@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Share2, Image as ImageIcon, X, PenTool } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Image as ImageIcon, X, PenTool, Paperclip, FileText } from 'lucide-react';
+
 import { db } from '../firebase'; // Import only db
 import { collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, arrayUnion, increment } from 'firebase/firestore';
 // import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Storage disabled for now
@@ -18,6 +19,8 @@ interface Post {
     date: string;
     content: string;
     imageUrl?: string;
+    fileUrl?: string; // Base64 data for file
+    fileName?: string; // Original file name
     likes: number;
     comments: Comment[];
 }
@@ -42,8 +45,10 @@ const Community = () => {
     const [newAuthor, setNewAuthor] = useState('');
     const [newContent, setNewContent] = useState('');
     const [imagePreview, setImagePreview] = useState<string | null>(null); // Use this as the data to save
+    const [fileData, setFileData] = useState<{ url: string, name: string } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const docInputRef = useRef<HTMLInputElement>(null);
 
     // Initial Load - Realtime Listener
     useEffect(() => {
@@ -73,6 +78,13 @@ const Community = () => {
         localStorage.setItem('likedPostIds', JSON.stringify(likedPostIds));
     }, [likedPostIds]);
 
+    // Force reset submitting state when modal opens
+    useEffect(() => {
+        if (isWriteModalOpen) {
+            setIsSubmitting(false);
+        }
+    }, [isWriteModalOpen]);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -82,13 +94,35 @@ const Community = () => {
             }
             const reader = new FileReader();
             reader.onloadend = () => {
-                // Determine if the base64 string is too long for Firestore (approx 1MB limit for doc)
                 const result = reader.result as string;
-                if (result.length > 900000) { // Roughly 900KB for base64 string
-                    alert('이미지 데이터가 너무 큽니다. 더 작은 이미지를 사용해주세요.');
+                if (result.length > 900000) {
+                    alert('이미지 데이터가 너무 큽니다.');
                     return;
                 }
                 setImagePreview(result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 1000000) { // Limit to 1MB
+                alert('파일 용량이 너무 큽니다. (1MB 이하만 가능)');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                if (result.length > 1500000) {
+                    alert('데이터가 너무 큽니다.');
+                    return;
+                }
+                setFileData({
+                    url: result,
+                    name: file.name
+                });
             };
             reader.readAsDataURL(file);
         }
@@ -109,30 +143,36 @@ const Community = () => {
             const imageUrl = imagePreview || '';
 
             // 2. Save Post Data
-            await addDoc(collection(db, "posts"), {
+            // 2. Save Post Data
+            const submitDoc = addDoc(collection(db, "posts"), {
                 author: newAuthor,
                 content: newContent,
                 date: new Date().toLocaleDateString(),
                 timestamp: Date.now(), // for sorting
-                imageUrl: imageUrl, // Storing base64 string directly
+                imageUrl: imageUrl,
+                fileUrl: fileData?.url || '',
+                fileName: fileData?.name || '',
                 likes: 0,
                 comments: []
             });
+
+            await submitDoc;
 
             // Reset
             setNewAuthor('');
             setNewContent('');
             setImagePreview(null);
+            setFileData(null);
             setIsWriteModalOpen(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error adding document: ", error);
-            alert("업로드 실패! 데이터베이스 규칙을 확인해주세요 (allow read, write: if true).");
+            alert("업로드 실패: " + (error.message || "데이터베이스 규칙을 확인해주세요 (allow read, write: if true)."));
         } finally {
             setIsSubmitting(false);
         }
     };
 
-        const handleLike = async (id: string) => {
+    const handleLike = async (id: string) => {
         const isAlreadyLiked = likedPostIds.includes(id);
         const postRef = doc(db, "posts", id);
 
@@ -219,7 +259,7 @@ const Community = () => {
 
             <div className="container community-content">
                 <div className="actions-bar">
-                    <button className="btn-write" onClick={() => setIsWriteModalOpen(true)}>
+                    <button className="btn-write" onClick={() => { setIsSubmitting(false); setIsWriteModalOpen(true); }}>
                         <PenTool size={18} /> 글쓰기
                     </button>
                 </div>
@@ -259,12 +299,21 @@ const Community = () => {
                                             <img src={post.imageUrl} alt="Uploaded" loading="lazy" />
                                         </div>
                                     )}
+                                    {post.fileUrl && (
+                                        <div className="post-file-attachment">
+                                            <a href={post.fileUrl} download={post.fileName || 'attachment'} className="file-download-link">
+                                                <FileText size={20} />
+                                                <span className="file-name">{post.fileName}</span>
+                                                <span className="file-hint">(다운로드)</span>
+                                            </a>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="post-footer">
                                     <button
                                         className={`btn-action ${likedPostIds.includes(post.id) ? 'active' : ''}`}
-                                       onClick={() => handleLike(post.id)}
+                                        onClick={() => handleLike(post.id)}
                                     >
                                         <Heart size={20} fill={likedPostIds.includes(post.id) ? "currentColor" : "none"} />
                                         <span>{post.likes}</span>
@@ -323,9 +372,9 @@ const Community = () => {
                     <div className="modal-content write-modal">
                         <div className="modal-header">
                             <h3>글쓰기</h3>
-                            <button onClick={() => setIsWriteModalOpen(false)}><X /></button>
+                            <button onClick={() => { setIsWriteModalOpen(false); setIsSubmitting(false); }}><X /></button>
                         </div>
-                        <form onSubmit={handleSubmit}>
+                        <form key={isWriteModalOpen ? 'open' : 'closed'} onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label>작성자</label>
                                 <input
@@ -360,6 +409,24 @@ const Community = () => {
                                     <div className="preview-image">
                                         <img src={imagePreview} alt="Preview" />
                                         <button type="button" onClick={() => { setImagePreview(null); }}><X size={14} /></button>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label className="btn-upload btn-upload-file">
+                                    <Paperclip size={18} /> 파일 첨부
+                                    <input
+                                        type="file"
+                                        ref={docInputRef}
+                                        hidden
+                                        onChange={handleFileChange}
+                                    />
+                                </label>
+                                {fileData && (
+                                    <div className="preview-file">
+                                        <FileText size={16} />
+                                        <span>{fileData.name}</span>
+                                        <button type="button" onClick={() => { setFileData(null); }}><X size={14} /></button>
                                     </div>
                                 )}
                             </div>

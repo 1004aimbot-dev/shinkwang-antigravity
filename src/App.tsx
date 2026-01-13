@@ -5,6 +5,7 @@ import People from './pages/People';
 import Community from './pages/Community';
 // import Schedule from './pages/Schedule';
 import Schedule from './pages/Schedule';
+import Praise from './pages/Praise';
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                     <Route path="community" element={<Community />} />
                     <Route path="calendar" element={<Schedule />} />
                     <Route path="schedule" element={<Schedule />} />
+                    <Route path="praise" element={<Praise />} />
                 </Route>
             </Routes>
         </Router>
