@@ -199,8 +199,13 @@ const Schedule: React.FC = () => {
                             </div>
                             <h3 className="event-title">{event.title}</h3>
                             <div className="event-details">
-                                {event.time && (
-                                    <div className="detail-item"><Clock size={14} /> {event.time}</div>
+                                {(event.time || event.time2) && (
+                                    <div className="detail-item">
+                                        <Clock size={14} />
+                                        {event.time}
+                                        {event.time && event.time2 && ' / '}
+                                        {event.time2}
+                                    </div>
                                 )}
                                 {event.location && (
                                     <div className="detail-item"><MapPin size={14} /> {event.location}</div>

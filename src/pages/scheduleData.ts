@@ -4,6 +4,7 @@ export interface ScheduleEvent {
     date: string; // YYYY-MM-DD
     type: 'practice' | 'worship' | 'special' | 'other';
     time?: string;
+    time2?: string;
     location?: string;
     description?: string;
 }

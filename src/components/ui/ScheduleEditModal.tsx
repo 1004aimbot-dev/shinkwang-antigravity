@@ -16,6 +16,7 @@ const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({ isOpen, onClose, 
     const [date, setDate] = useState('');
     const [type, setType] = useState<ScheduleEvent['type']>('practice');
     const [time, setTime] = useState('');
+    const [time2, setTime2] = useState('');
     const [location, setLocation] = useState('');
     const [description, setDescription] = useState('');
 
@@ -26,6 +27,7 @@ const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({ isOpen, onClose, 
                 setDate(initialEvent.date);
                 setType(initialEvent.type);
                 setTime(initialEvent.time || '');
+                setTime2(initialEvent.time2 || '');
                 setLocation(initialEvent.location || '');
                 setDescription(initialEvent.description || '');
             } else {
@@ -33,7 +35,8 @@ const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({ isOpen, onClose, 
                 setTitle('');
                 setDate(selectedDate || new Date().toISOString().split('T')[0]);
                 setType('practice');
-                setTime('13:30');
+                setTime('10:20');
+                setTime2('12:40');
                 setLocation('찬양대실');
                 setDescription('');
             }
@@ -48,7 +51,9 @@ const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({ isOpen, onClose, 
             title,
             date,
             type,
+
             time: time || undefined,
+            time2: time2 || undefined,
             location: location || undefined,
             description: description || undefined
         });
@@ -106,12 +111,22 @@ const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({ isOpen, onClose, 
 
                 <div className="form-group">
                     <label>시간</label>
-                    <input
-                        type="time"
-                        className="modal-input"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                            type="time"
+                            className="modal-input"
+                            value={time}
+                            onChange={(e) => setTime(e.target.value)}
+                            style={{ flex: 1 }}
+                        />
+                        <input
+                            type="time"
+                            className="modal-input"
+                            value={time2}
+                            onChange={(e) => setTime2(e.target.value)}
+                            style={{ flex: 1 }}
+                        />
+                    </div>
                 </div>
 
                 <div className="form-group">
