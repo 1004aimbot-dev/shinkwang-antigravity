@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Share2, Image as ImageIcon, X, PenTool, Paperclip, FileText } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Image as ImageIcon, X, PenTool, Paperclip, FileText, Edit2 } from 'lucide-react';
 
 import { db } from '../firebase'; // Import only db
 import { collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, arrayUnion, increment } from 'firebase/firestore';
@@ -28,7 +28,9 @@ interface Post {
 const Community = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+
     const [isLoading, setIsLoading] = useState(true);
+    const [editingPost, setEditingPost] = useState<Post | null>(null);
 
     // Track local likes to show red heart immediately for this session/device
     const [likedPostIds, setLikedPostIds] = useState<string[]>(() => {
@@ -143,26 +145,37 @@ const Community = () => {
             const imageUrl = imagePreview || '';
 
             // 2. Save Post Data
-            // 2. Save Post Data
-            const submitDoc = addDoc(collection(db, "posts"), {
+            const postData = {
                 author: newAuthor,
                 content: newContent,
-                date: new Date().toLocaleDateString(),
-                timestamp: Date.now(), // for sorting
                 imageUrl: imageUrl,
                 fileUrl: fileData?.url || '',
                 fileName: fileData?.name || '',
-                likes: 0,
-                comments: []
-            });
+                timestamp: Date.now() // Update timestamp to bump to top? Maybe yes, maybe no. Usually edit doesn't change date but let's keep it simple. Actually, let's NOT update timestamp on edit to verify order.
+            };
 
-            await submitDoc;
+            if (editingPost) {
+                // Update existing
+                await updateDoc(doc(db, "posts", editingPost.id), {
+                    ...postData,
+                    timestamp: editingPost.timestamp // Keep original timestamp
+                });
+            } else {
+                // Create new
+                await addDoc(collection(db, "posts"), {
+                    ...postData,
+                    date: new Date().toLocaleDateString(),
+                    likes: 0,
+                    comments: []
+                });
+            }
 
             // Reset
             setNewAuthor('');
             setNewContent('');
             setImagePreview(null);
             setFileData(null);
+            setEditingPost(null);
             setIsWriteModalOpen(false);
         } catch (error: any) {
             console.error("Error adding document: ", error);
@@ -201,6 +214,19 @@ const Community = () => {
                 alert("삭제 권한이 없거나 오류가 발생했습니다.");
             }
         }
+    };
+
+    const handleEdit = (post: Post) => {
+        setEditingPost(post);
+        setNewAuthor(post.author);
+        setNewContent(post.content);
+        setImagePreview(post.imageUrl || null);
+        if (post.fileUrl) {
+            setFileData({ url: post.fileUrl, name: post.fileName || '첨부파일' });
+        } else {
+            setFileData(null);
+        }
+        setIsWriteModalOpen(true);
     };
 
     const handleShare = () => {
@@ -259,7 +285,7 @@ const Community = () => {
 
             <div className="container community-content">
                 <div className="actions-bar">
-                    <button className="btn-write" onClick={() => { setIsSubmitting(false); setIsWriteModalOpen(true); }}>
+                    <button className="btn-write" onClick={() => { setIsSubmitting(false); setIsWriteModalOpen(true); setEditingPost(null); }}>
                         <PenTool size={18} /> 글쓰기
                     </button>
                 </div>
@@ -287,9 +313,14 @@ const Community = () => {
                                         <span className="post-author">{post.author}</span>
                                         <span className="post-date">{post.date}</span>
                                     </div>
-                                    <button className="btn-more" onClick={() => handleDelete(post.id)}>
-                                        <X size={16} />
-                                    </button>
+                                    <div className="post-actions-top">
+                                        <button className="btn-icon" onClick={() => handleEdit(post)} title="수정">
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button className="btn-icon" onClick={() => handleDelete(post.id)} title="삭제">
+                                            <X size={16} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="post-body">
@@ -371,8 +402,8 @@ const Community = () => {
                 <div className="modal-overlay">
                     <div className="modal-content write-modal">
                         <div className="modal-header">
-                            <h3>글쓰기</h3>
-                            <button onClick={() => { setIsWriteModalOpen(false); setIsSubmitting(false); }}><X /></button>
+                            <h3>{editingPost ? '글 수정' : '글쓰기'}</h3>
+                            <button onClick={() => { setIsWriteModalOpen(false); setIsSubmitting(false); setEditingPost(null); }}><X /></button>
                         </div>
                         <form key={isWriteModalOpen ? 'open' : 'closed'} onSubmit={handleSubmit}>
                             <div className="form-group">
@@ -432,7 +463,7 @@ const Community = () => {
                             </div>
                             <div className="modal-footer">
                                 <button type="submit" className="btn-submit" disabled={isSubmitting}>
-                                    {isSubmitting ? '업로드 중...' : '등록하기'}
+                                    {isSubmitting ? (editingPost ? '수정 중...' : '업로드 중...') : (editingPost ? '수정완료' : '등록하기')}
                                 </button>
                             </div>
                         </form>

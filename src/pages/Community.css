@@ -104,15 +104,27 @@
     color: #868e96;
 }
 
-.btn-more {
+.post-actions-top {
     position: absolute;
     right: 0;
     top: 0;
+    display: flex;
+    gap: 4px;
+}
+
+.btn-icon {
     background: none;
     border: none;
     color: #adb5bd;
     cursor: pointer;
-    padding: 4px;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background-color: #f1f3f5;
+    color: #495057;
 }
 
 .post-body {
