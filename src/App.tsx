@@ -6,10 +6,12 @@ import Community from './pages/Community';
 // import Schedule from './pages/Schedule';
 import Schedule from './pages/Schedule';
 import Praise from './pages/Praise';
+import ConnectionTest from './components/ui/ConnectionTest';
 
 function App() {
     return (
         <Router>
+            <ConnectionTest />
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
