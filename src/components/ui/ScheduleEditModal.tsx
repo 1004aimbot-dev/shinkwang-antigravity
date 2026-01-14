@@ -35,8 +35,8 @@ const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({ isOpen, onClose, 
                 setTitle('');
                 setDate(selectedDate || new Date().toISOString().split('T')[0]);
                 setType('practice');
-                setTime('10:20');
-                setTime2('12:40');
+                setTime('08:00');
+                setTime2('10:20');
                 setLocation('찬양대실');
                 setDescription('');
             }
