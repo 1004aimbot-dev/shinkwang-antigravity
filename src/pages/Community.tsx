@@ -23,6 +23,7 @@ interface Post {
     fileName?: string; // Original file name
     likes: number;
     comments: Comment[];
+    timestamp?: number;
 }
 
 const Community = () => {
