@@ -149,7 +149,11 @@ const Praise = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error: any) {
             console.error(error);
-            alert((editingVideo ? '수정 실패: ' : '등록 실패: ') + (error.message || "알 수 없는 오류"));
+            let errorMsg = "알 수 없는 오류";
+            if (error.code === 'permission-denied') errorMsg = "권한이 없습니다.";
+            else if (error.message) errorMsg = error.message;
+
+            alert((editingVideo ? '수정 실패: ' : '등록 실패: ') + errorMsg);
         } finally {
             setIsSubmitting(false);
         }

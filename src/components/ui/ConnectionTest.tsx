@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
-import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore'; 
+import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 const ConnectionTest = () => {
     const [status, setStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+
+    const getStatusText = () => {
+        if (status === 'connected') return '연결됨';
+        if (status === 'checking') return '확인 중';
+        return '오류';
+    };
     const [message, setMessage] = useState('연결 확인 중...');
     const [details, setDetails] = useState('');
 
@@ -66,11 +72,11 @@ const ConnectionTest = () => {
                 {message}
             </h4>
             <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-                <p>Project ID: {import.meta.env.VITE_FIREBASE_PROJECT_ID}</p>
-                <p>API Key: {import.meta.env.VITE_FIREBASE_API_KEY ? 'Loaded' : 'Missing'}</p>
-                <p>Status: {status}</p>
+                <p>프로젝트 ID: {import.meta.env.VITE_FIREBASE_PROJECT_ID}</p>
+                <p>API 키: {import.meta.env.VITE_FIREBASE_API_KEY ? '확인됨' : '누락됨'}</p>
+                <p>상태: {getStatusText()}</p>
             </div>
-            {details && <p style={{ margin: 0, color: '#333' }}>{details}</p>}
+            {details && <p style={{ margin: 0, color: '#333' }}>상세: {details}</p>}
         </div>
     );
 };

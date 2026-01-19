@@ -1,5 +1,5 @@
 export interface ScheduleEvent {
-    id: number;
+    id: string | number;
     title: string;
     date: string; // YYYY-MM-DD
     type: 'practice' | 'worship' | 'special' | 'other';

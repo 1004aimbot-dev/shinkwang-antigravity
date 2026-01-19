@@ -4,7 +4,10 @@ import './Schedule.css';
 import ScheduleEditModal from '../components/ui/ScheduleEditModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import type { ScheduleEvent } from './scheduleData';
-import { defaultSchedules } from './scheduleData';
+// import { defaultSchedules } from './scheduleData';
+
+import { db } from '../firebase';
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query } from 'firebase/firestore';
 
 const Schedule: React.FC = () => {
     // console.log('Schedule Page Mounted');
@@ -12,35 +15,57 @@ const Schedule: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [scheduleList, setScheduleList] = useState<ScheduleEvent[]>([]);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
-    const [targetDeleteId, setTargetDeleteId] = useState<number | null>(null);
+    const [targetDeleteId, setTargetDeleteId] = useState<string | null>(null); // Changed to string for Firestore ID
 
     const eventListRef = useRef<HTMLDivElement>(null);
 
+    // Initial Load - Realtime Listener
     useEffect(() => {
-        try {
-            setIsAdmin(sessionStorage.getItem('isAdmin') === 'true');
-            const saved = localStorage.getItem('schedules');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    setScheduleList(parsed);
-                } catch (e) {
-                    console.error('JSON Parse Error:', e);
-                    setScheduleList(defaultSchedules);
-                    localStorage.setItem('schedules', JSON.stringify(defaultSchedules));
-                }
+        setIsAdmin(sessionStorage.getItem('isAdmin') === 'true');
+
+        const q = query(collection(db, "schedules"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            if (snapshot.empty) {
+                // Optional: Seed default data if completely empty
+                // For now, let's just show empty or use defaults in memory? 
+                // Better to not auto-write defaults to DB without admin action to avoid duplicates.
+                // But user might want to see the defaults initially.
+                // Let's just use defaults if empty locally, or maybe just show nothing.
+                // To be safe and consistent, if DB is empty, we might want to suggest adding data or manually seed.
+                // For this user context, let's fall back to defaultSchedules locally if DB is truly empty,
+                // BUT that brings back the sync issue if we don't save it.
+                // Let's trust the DB. If it's empty, it's empty.
+                // However, the user probably wants the 'defaultSchedules' to be there initially.
+                // I'll add a check: if 0 docs, maybe we can rely on manual entry or one-time seed.
+                // User said "shows old things", implying they see *something*.
+                setScheduleList([]);
             } else {
-                setScheduleList(defaultSchedules);
-                localStorage.setItem('schedules', JSON.stringify(defaultSchedules));
+                const events = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })) as any[]; // Cast to match ScheduleEvent but ID is string now
+
+                // Need to map string ID to number if interface strictly requires number, 
+                // but usually better to change interface to string | number.
+                // For now, let's adjust the interface or cast.
+                // The ScheduleEvent interface says id: number. 
+                // I should update scheduleData.ts to accept string IDs or allow string here.
+                // Let's cast for now and assume we can handle string IDs in the component.
+                setScheduleList(events);
             }
-        } catch (err) {
-            console.error('Critical Error in useEffect:', err);
-        }
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Firebase Schedule Error:", error);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     // Helper: Compare dates (ignoring time)
@@ -93,32 +118,55 @@ const Schedule: React.FC = () => {
         setIsEditModalOpen(true);
     };
 
-    const handleDeleteClick = (id: number) => {
-        setTargetDeleteId(id);
+    const handleDeleteClick = (id: number | string) => {
+        setTargetDeleteId(id.toString());
         setIsDeleteModalOpen(true);
     };
 
-    const saveEvent = (eventData: Omit<ScheduleEvent, 'id'> & { id?: number }) => {
-        let newList;
-        if (eventData.id) {
-            newList = scheduleList.map(s => s.id === eventData.id ? { ...eventData, id: eventData.id! } : s);
-        } else {
-            const newEvent = { ...eventData, id: Date.now() };
-            newList = [...scheduleList, newEvent];
+    const saveEvent = async (eventData: Omit<ScheduleEvent, 'id'> & { id?: number | string }) => {
+        try {
+            if (eventData.id) {
+                // Update existing
+                const docRef = doc(db, "schedules", eventData.id.toString());
+                await updateDoc(docRef, {
+                    title: eventData.title,
+                    date: eventData.date,
+                    type: eventData.type,
+                    time: eventData.time || '',
+                    time2: eventData.time2 || '',
+                    location: eventData.location || '',
+                    description: eventData.description || ''
+                });
+            } else {
+                // Create new
+                await addDoc(collection(db, "schedules"), {
+                    title: eventData.title,
+                    date: eventData.date,
+                    type: eventData.type,
+                    time: eventData.time || '',
+                    time2: eventData.time2 || '',
+                    location: eventData.location || '',
+                    description: eventData.description || ''
+                });
+            }
+            setIsEditModalOpen(false);
+            setEditingEvent(null);
+        } catch (error) {
+            console.error("Error saving event:", error);
+            alert("저장 중 오류가 발생했습니다.");
         }
-        setScheduleList(newList);
-        localStorage.setItem('schedules', JSON.stringify(newList));
-        setIsEditModalOpen(false);
-        setEditingEvent(null);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (targetDeleteId) {
-            const newList = scheduleList.filter(s => s.id !== targetDeleteId);
-            setScheduleList(newList);
-            localStorage.setItem('schedules', JSON.stringify(newList));
-            setIsDeleteModalOpen(false);
-            setTargetDeleteId(null);
+            try {
+                await deleteDoc(doc(db, "schedules", targetDeleteId));
+                setIsDeleteModalOpen(false);
+                setTargetDeleteId(null);
+            } catch (error) {
+                console.error("Error deleting event:", error);
+                alert("삭제 중 오류가 발생했습니다.");
+            }
         }
     };
 
@@ -166,6 +214,10 @@ const Schedule: React.FC = () => {
 
     // Render List
     const renderEventList = () => {
+        if (isLoading) {
+            return <div className="loading-state">일정을 불러오는 중...</div>;
+        }
+
         if (filteredEvents.length === 0) {
             return (
                 <div className="no-events">
@@ -221,7 +273,7 @@ const Schedule: React.FC = () => {
         );
     };
 
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 
     return (
         <div className="schedule-page-v2">
@@ -230,25 +282,25 @@ const Schedule: React.FC = () => {
                     <div className="month-navigation">
                         <button className="nav-btn" onClick={prevMonth}><ChevronLeft size={24} /></button>
                         <h2 className="current-month-title">
-                            {monthNames[currentDate.getMonth()]} <span className="year">{currentDate.getFullYear()}</span>
+                            <span className="year">{currentDate.getFullYear()}년</span> {monthNames[currentDate.getMonth()]}
                         </h2>
                         <button className="nav-btn" onClick={nextMonth}><ChevronRight size={24} /></button>
                     </div>
 
                     <div className="mini-calendar-grid">
-                        <div className="week-header">S</div>
-                        <div className="week-header">M</div>
-                        <div className="week-header">T</div>
-                        <div className="week-header">W</div>
-                        <div className="week-header">T</div>
-                        <div className="week-header">F</div>
-                        <div className="week-header">S</div>
+                        <div className="week-header">일</div>
+                        <div className="week-header">월</div>
+                        <div className="week-header">화</div>
+                        <div className="week-header">수</div>
+                        <div className="week-header">목</div>
+                        <div className="week-header">금</div>
+                        <div className="week-header">토</div>
                         {calendarDays}
                     </div>
 
                     <div className="calendar-legend-simple">
-                        <span className="legend-item"><span className="legend-dot event"></span> Event</span>
-                        <span className="legend-item"><span className="legend-dot none"></span> No Schedule</span>
+                        <span className="legend-item"><span className="legend-dot event"></span> 일정 있음</span>
+                        <span className="legend-item"><span className="legend-dot none"></span> 일정 없음</span>
                     </div>
 
                     {isAdmin && (
@@ -283,3 +335,4 @@ const Schedule: React.FC = () => {
 };
 
 export default Schedule;
+

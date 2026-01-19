@@ -6,7 +6,7 @@ import './ModalContent.css';
 interface ScheduleEditModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (event: Omit<ScheduleEvent, 'id'> & { id?: number }) => void;
+    onSave: (event: Omit<ScheduleEvent, 'id'> & { id?: string | number }) => void;
     initialEvent?: ScheduleEvent | null;
     selectedDate?: string;
 }

@@ -180,28 +180,37 @@ const Community = () => {
             setIsWriteModalOpen(false);
         } catch (error: any) {
             console.error("Error adding document: ", error);
-            alert("업로드 실패: " + (error.message || "데이터베이스 규칙을 확인해주세요 (allow read, write: if true)."));
+            let errorMsg = "알 수 없는 오류";
+            if (error.code === 'permission-denied') errorMsg = "권한이 없습니다.";
+            else if (error.message) errorMsg = error.message;
+
+            alert("업로드 실패: " + errorMsg);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleLike = async (id: string) => {
-        const isAlreadyLiked = likedPostIds.includes(id);
-        const postRef = doc(db, "posts", id);
+        try {
+            const isAlreadyLiked = likedPostIds.includes(id);
+            const postRef = doc(db, "posts", id);
 
-        if (isAlreadyLiked) {
-            // Unlike
-            setLikedPostIds(prev => prev.filter(pid => pid !== id));
-            await updateDoc(postRef, {
-                likes: increment(-1)
-            });
-        } else {
-            // Like
-            setLikedPostIds(prev => [...prev, id]);
-            await updateDoc(postRef, {
-                likes: increment(1)
-            });
+            if (isAlreadyLiked) {
+                // Unlike
+                setLikedPostIds(prev => prev.filter(pid => pid !== id));
+                await updateDoc(postRef, {
+                    likes: increment(-1)
+                });
+            } else {
+                // Like
+                setLikedPostIds(prev => [...prev, id]);
+                await updateDoc(postRef, {
+                    likes: increment(1)
+                });
+            }
+        } catch (error) {
+            console.error("Like error:", error);
+            alert("좋아요 처리에 실패했습니다.");
         }
     };
 
@@ -260,19 +269,24 @@ const Community = () => {
             return;
         }
 
-        const newComment = {
-            id: Date.now(),
-            author: commentAuthor,
-            content: commentText,
-            date: new Date().toLocaleDateString()
-        };
+        try {
+            const newComment = {
+                id: Date.now(),
+                author: commentAuthor,
+                content: commentText,
+                date: new Date().toLocaleDateString()
+            };
 
-        const postRef = doc(db, "posts", postId);
-        await updateDoc(postRef, {
-            comments: arrayUnion(newComment)
-        });
+            const postRef = doc(db, "posts", postId);
+            await updateDoc(postRef, {
+                comments: arrayUnion(newComment)
+            });
 
-        setCommentText('');
+            setCommentText('');
+        } catch (error) {
+            console.error("Comment error:", error);
+            alert("댓글 등록에 실패했습니다.");
+        }
     };
 
     return (

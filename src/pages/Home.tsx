@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, setDoc, query, orderBy } from 'firebase/firestore';
 import './Home.css';
 import { ChevronDown, Music, Megaphone, Info, UserPlus, Heart, BookOpen, Users, Edit, Trash, Plus } from 'lucide-react';
 import heroCalligraphy from '../assets/hero-calligraphy.png';
@@ -10,12 +12,12 @@ import SingleInputModal from '../components/ui/SingleInputModal';
 
 // Default Data
 const DEFAULT_PRAISE_LINK = "https://www.youtube.com/results?search_query=성남신광교회+글로리아찬양대";
-const DEFAULT_NEWS = [
-    { id: 1, date: '2026.01.07', content: '1월 찬양대 연습 일정 안내' },
-    { id: 2, date: '2026.01.01', content: '신년 감사 주일 찬양 준비' },
-    { id: 3, date: '2025.12.25', content: '성탄 축하 예배 찬양 (완료)' },
-    { id: 4, date: '2025.12.31', content: '송구영신예배 특송 공지' },
-];
+// const DEFAULT_NEWS = [
+//     { id: 1, date: '2026.01.07', content: '1월 찬양대 연습 일정 안내' },
+//     { id: 2, date: '2026.01.01', content: '신년 감사 주일 찬양 준비' },
+//     { id: 3, date: '2025.12.25', content: '성탄 축하 예배 찬양 (완료)' },
+//     { id: 4, date: '2025.12.31', content: '송구영신예배 특송 공지' },
+// ];
 
 const Home = () => {
     const navigate = useNavigate();
@@ -25,7 +27,7 @@ const Home = () => {
     // Admin & Data State
     const [isAdmin, setIsAdmin] = useState(false);
     const [praiseLink, setPraiseLink] = useState(DEFAULT_PRAISE_LINK);
-    const [newsList, setNewsList] = useState(DEFAULT_NEWS);
+    const [newsList, setNewsList] = useState<any[]>([]); // Initialize empty, wait for DB
 
     // Modal States
     const [editModal, setEditModal] = useState({ isOpen: false, isEditing: false, targetId: 0, date: '', content: '' });
@@ -36,28 +38,57 @@ const Home = () => {
         // Load Admin Status (Session Storage)
         setIsAdmin(sessionStorage.getItem('isAdmin') === 'true');
 
-        // Load Persisted Data (Local Storage - Keep Data Saved)
-        const savedLink = localStorage.getItem('praiseLink');
-        if (savedLink) setPraiseLink(savedLink);
+        // 1. Praise Link Listener
+        const linkUnsub = onSnapshot(doc(db, "settings", "praise_config"), (doc) => {
+            if (doc.exists() && doc.data().url) {
+                setPraiseLink(doc.data().url);
+            }
+        });
 
-        const savedNews = localStorage.getItem('newsList');
-        if (savedNews) setNewsList(JSON.parse(savedNews));
+        // 2. News/Notices Listener
+        const newsQuery = query(collection(db, "notices"), orderBy("created", "desc"));
+        const newsUnsub = onSnapshot(newsQuery, (snapshot) => {
+            const loadedNews = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // If empty (first time), allow showing defaults or just empty
+            // Use default only if strictly needed, but better to allow empty state or rely on seed
+            if (loadedNews.length > 0) {
+                setNewsList(loadedNews);
+            } else {
+                setNewsList([]);
+            }
+        });
 
         // Event Listener for Header "Worship Guide" Click
         const handleOpenJoinModal = () => setShowJoinModal(true);
         window.addEventListener('open-join-modal', handleOpenJoinModal);
 
-        return () => window.removeEventListener('open-join-modal', handleOpenJoinModal);
+        return () => {
+            window.removeEventListener('open-join-modal', handleOpenJoinModal);
+            linkUnsub();
+            newsUnsub();
+        };
     }, []);
 
     const openEditPraiseLink = () => {
         setLinkModal({ isOpen: true });
     };
 
-    const handleSavePraiseLink = (newLink: string) => {
+    const handleSavePraiseLink = async (newLink: string) => {
         if (newLink) {
-            setPraiseLink(newLink);
-            localStorage.setItem('praiseLink', newLink);
+            try {
+                await setDoc(doc(db, "settings", "praise_config"), {
+                    url: newLink,
+                    updatedAt: Date.now()
+                }, { merge: true });
+                setPraiseLink(newLink); // Optimistic update
+            } catch (error) {
+                console.error("Failed to save link:", error);
+                alert("저장 실패: 관리자 권한을 확인하세요.");
+            }
         }
     };
 
@@ -75,25 +106,39 @@ const Home = () => {
     };
 
     // --- Actual Actions ---
-    const handleSaveNews = (date: string, content: string) => {
-        if (editModal.isEditing) {
-            const updatedList = newsList.map(item =>
-                item.id === editModal.targetId ? { ...item, date, content } : item
-            );
-            setNewsList(updatedList);
-            localStorage.setItem('newsList', JSON.stringify(updatedList));
-        } else {
-            const newItem = { id: Date.now(), date, content };
-            const updatedList = [newItem, ...newsList];
-            setNewsList(updatedList);
-            localStorage.setItem('newsList', JSON.stringify(updatedList));
+    const handleSaveNews = async (date: string, content: string) => {
+        try {
+            if (editModal.isEditing) {
+                // Update
+                const newsRef = doc(db, "notices", editModal.targetId.toString());
+                await updateDoc(newsRef, {
+                    date,
+                    content
+                });
+            } else {
+                // Create
+                await addDoc(collection(db, "notices"), {
+                    date,
+                    content,
+                    created: Date.now()
+                });
+            }
+        } catch (error) {
+            console.error("Error saving news:", error);
+            alert("공지 저장에 실패했습니다.");
         }
     };
 
-    const handleExecuteDelete = () => {
-        const updatedList = newsList.filter(item => item.id !== deleteModal.targetId);
-        setNewsList(updatedList);
-        localStorage.setItem('newsList', JSON.stringify(updatedList));
+    const handleExecuteDelete = async () => {
+        if (deleteModal.targetId) {
+            try {
+                await deleteDoc(doc(db, "notices", deleteModal.targetId.toString()));
+                setDeleteModal({ isOpen: false, targetId: 0 }); // Close locally
+            } catch (error) {
+                console.error("Error deleting news:", error);
+                alert("삭제 실패");
+            }
+        }
     };
     return (
         <div className="home-container">
